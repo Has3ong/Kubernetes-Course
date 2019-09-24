@@ -1,0 +1,13 @@
+# three node (two workers) cluster config
+kind: Cluster
+apiVersion: kind.sigs.k8s.io/v1alpha3
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+
+# uncomment below to expose nodeport on localhost:8080
+  # extraPortMappings:
+  # - containerPort: 31689
+  #   hostPort: 8080
+  #   listenAddress: "127.0.0.1"
