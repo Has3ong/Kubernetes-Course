@@ -1,252 +1,222 @@
-# Kubernetes Course
+# Kubernetes Course 1
 
-### Docker
+## Running Wordpress on Kubernetes
 
-Install **_[docker for mac](https://docs.docker.com/docker-for-mac/install/)._**  
-Follow **_[docker guide](https://docs.docker.com/docker-for-mac/#advanced)_** to increase resource limit(need to set memory to 8GB+).
-
-```
-$ brew install Docker
-
-$ docker version
-Client: Docker Engine - Community
- Version:           19.03.2
- API version:       1.40
- Go version:        go1.12.8
- Git commit:        6a30dfc
- Built:             Thu Aug 29 05:26:49 2019
- OS/Arch:           darwin/amd64
- Experimental:      false
-
-Server: Docker Engine - Community
- Engine:
-  Version:          19.03.2
-  API version:      1.40 (minimum version 1.12)
-  Go version:       go1.12.8
-  Git commit:       6a30dfc
-  Built:            Thu Aug 29 05:32:21 2019
-  OS/Arch:          linux/amd64
-  Experimental:     false
- containerd:
-  Version:          v1.2.6
-  GitCommit:        894b81a4b802e4eb2a91d1ce216b8817763c29fb
- runc:
-  Version:          1.0.0-rc8
-  GitCommit:        425e105d5a03fabd737a126ad93d62a9eeede87f
- docker-init:
-  Version:          0.18.0
-  GitCommit:        fec3683
-```
-
-### Go
-Install Go download from **_[golang.org](https://golang.org/doc/install)_**
-```
-$ brew install go
-
-$ go version
-go version go1.12.9 darwin/amd64
-
-$ go env
-GOARCH="amd64"
-GOBIN=""
-GOCACHE="/Users/has3ong/Library/Caches/go-build"
-GOEXE=""
-GOFLAGS=""
-GOHOSTARCH="amd64"
-GOHOSTOS="darwin"
-GOOS="darwin"
-GOPATH="/Users/has3ong/go"
-GOPROXY=""
-GORACE=""
-GOROOT="/usr/local/Cellar/go/1.12.9/libexec"
-GOTMPDIR=""
-GOTOOLDIR="/usr/local/Cellar/go/1.12.9/libexec/pkg/tool/darwin_amd64"
-GCCGO="gccgo"
-CC="clang"
-CXX="clang++"
-CGO_ENABLED="1"
-GOMOD=""
-CGO_CFLAGS="-g -O2"
-CGO_CPPFLAGS=""
-CGO_CXXFLAGS="-g -O2"
-CGO_FFLAGS="-g -O2"
-CGO_LDFLAGS="-g -O2"
-PKG_CONFIG="pkg-config"
-GOGCCFLAGS="-fPIC -m64 -pthread -fno-caret-diagnostics -Qunused-arguments -fmessage-length=0 -fdebug-prefix-map=/var/folders/yq/4wxz887d6sb1xh2zqf9l4_100000gn/T/go-build884843357=/tmp/go-build -gno-record-gcc-switches -fno-common"
-```  
-
-### Kubectl
+Minikube Start
 
 ```
-### Install with Homebrew on macOS
-$ brew install kubernetes-cli
-
-### download kubectl 1.16.0
-$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.16.0/bin/darwin/amd64/kubectl
-
-$ chmod -x ./kubectl
-    
-$ mv ./kubectl /usr/local/bin/kubectl
-
-### if kubectl isn't executable
-$ chmod 755 /usr/local/bin/kubectl
-```
-    
-### KIND
-
-Refer to _**[KIND](https://github.com/kubernetes-sigs/kind)**_ for more details
-
-```
-$ GO111MODULE="on" go get sigs.k8s.io/kind@v0.5.1
-
-$ export PATH="$PATH:$(go env GOPATH)/bin"
+$ minikube start
+⚠️  minikube 1.4.0 is available! Download it: https://github.com/kubernetes/minikube/releases/tag/v/1.4.0
+💡  To disable this notice, run: 'minikube config set WantUpdateNotification false'
+😄  minikube v1.3.1 on Darwin 10.14.6
+💡  Tip: Use 'minikube start -p <name>' to create a new cluster, or 'minikube delete' to delete this one.
+🔄  Starting existing virtualbox VM for "minikube" ...
+⌛  Waiting for the host to be provisioned ...
+🐳  Preparing Kubernetes v1.15.2 on Docker 18.09.8 ...
+🔄  Relaunching Kubernetes using kubeadm ...
+⌛  Waiting for: apiserver proxy etcd scheduler controller dns
+🏄  Done! kubectl is now configured to use "minikube"
 ```
 
-### Aliases
-
 ```
-$ alias k='kubectl'
-    
-$ alias chrome="/Applications/Google\\ \\Chrome.app/Contents/MacOS/Google\\ \\Chrome"
-```
-
-### Useful Tools
-
-_kubectl_ command shell _**[auto-completion](https://kubernetes.io/docs/tasks/tools/install-kubectl/?source=#enabling-shell-autocompletion)**_
-  
-```
-### for oh-my-zsh
-$ plugins=(... kubectl)
-```
-
-* k8s context/namespace changer _**[kubectx/kubens](https://github.com/ahmetb/kubectx)**_  
-* Awesome k8s shell prompt _**[kube ps1](https://github.com/jonmosco/kube-ps1)**_  
-* Very cool k8s CLI manage tool _**[k9s](https://k9ss.io/?fbclid=IwAR0MQO9yBF5iKpJlDkuSNtrWGy72zK81I-j071lrKQsV1DLhloOMknOLd64)**_  
-* Multiple pods log tool for k8s _**[stern](https://github.com/wercker/stern)**_
-
-## Practice
-
-### Create k8s multi-node cluster with KIND
-Will create 1 master and 2 worker nodes.  
-
-```
-$ kind create cluster --name kind-m --config kind-test-config.yaml
-```
-
-### Change k8s config  
-Add configs from _'.kube/kind-config-kind-m'_ to _'.kube/config'_ file
-or:
-
-```
-$ export KUBECONFIG="$(kind get kubeconfig-path --name="kind-m")"
-```
-
-
-### Verify k8s cluster
-
-```
-$ kubectl cluster-info
 $ kubectl get nodes
-$ kubectl get pods --all-namespaces
+NAME       STATUS   ROLES    AGE   VERSION
+minikube   Ready    master   20d   v1.15.2
 ```
 
-### Install metrics-server
-Refer to _**[metrics-server](https://github.com/kubernetes-incubator/metrics-server)**_ for more information
-
+#### Create Wordpress secret, delpoyment
 ```
-$ kubectl apply -f ./metrics-server
-```
+$ kubectl create -f wordpress/wordpress-secrets.yml
+secret/wordpress-secrets created
 
-### Install Ingress-nginx
-Installation _**[Guide](https://kubernetes.github.io/ingress-nginx/deploy/)**_
+$ kubectl create -f wordpress/wordpress-single-deployment-no-volumes.yml
+deployment.extensions/wordpress-deployment created
 
-```
-$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
-
-# create service with nodeport 32080, 32433
-$ kubectl apply -f ./ingress-nginx/
-```
-
-### Deploy MariaDB(MySQL) for Wordpress - Stateful Sets
-Deploy MariaDB
-
-```    
-$ kubectl create namespace wordpress
-$ kubectl apply -f ./mysql
-
-# Check Stateful Sets
-$ kubectl get sts -n wordpress
-$ kubectl describe sts mysql -n wordpress
+$ kubectl get pods
+NAME                                    READY   STATUS              RESTARTS   AGE
+nginx-8sjcn                             1/1     Running             1          16d
+nginx-bffqg                             1/1     Running             1          16d
+nginx-wnwm8                             1/1     Running             1          16d
+wordpress-deployment-58cd589c6c-xvjnk   0/2     ContainerCreating   0          3s
 ```
 
-### Deploy Wordpress - Deployment
-
-Deploy WordPress
+#### Describe pod of Wordpress
+```
+$ kubectl describe pod wordpress
+Name:           wordpress-deployment-58cd589c6c-xvjnk
+Namespace:      default
+Priority:       0
+Node:           minikube/10.0.2.15
+Start Time:     Wed, 25 Sep 2019 23:22:30 +0900
+Labels:         app=wordpress
+                pod-template-hash=58cd589c6c
+Annotations:    <none>
+Status:         Pending
+IP:
+IPs:            <none>
+Controlled By:  ReplicaSet/wordpress-deployment-58cd589c6c
+Containers:
+  wordpress:
+    Container ID:
+    Image:          wordpress:4-php7.0
+    Image ID:
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      WORDPRESS_DB_PASSWORD:  <set to the key 'db-password' in secret 'wordpress-secrets'>  Optional: false
+      WORDPRESS_DB_HOST:      127.0.0.1
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-8w67q (ro)
+  mysql:
+    Container ID:
+    Image:          mysql:5.7
+    Image ID:
+    Port:           3306/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      MYSQL_ROOT_PASSWORD:  <set to the key 'db-password' in secret 'wordpress-secrets'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-8w67q (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             False
+  ContainersReady   False
+  PodScheduled      True
+Volumes:
+  default-token-8w67q:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-8w67q
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  62s   default-scheduler  Successfully assigned default/wordpress-deployment-58cd589c6c-xvjnk to minikube
+  Normal  Pulling    61s   kubelet, minikube  Pulling image "wordpress:4-php7.0"
+  Normal  Pulled     23s   kubelet, minikube  Successfully pulled image "wordpress:4-php7.0"
+  Normal  Created    23s   kubelet, minikube  Created container wordpress
+  Normal  Started    23s   kubelet, minikube  Started container wordpress
+  Normal  Pulling    23s   kubelet, minikube  Pulling image "mysql:5.7"
 
 ```
-# get you local ip
-$ IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}')
 
-# replace ingress host with your IP
-$ sed -i.bak "s/host.*/host: blog."$IP".nip.io/g" ./wordpress/ingress.yaml
-    
-$ kubectl apply -f ./wordpress
+#### Create Wordpress Service
+```
+$ kubectl create -f wordpress/wordpress-service.yml
+service/wordpress-service created
 
-# edit deployment
-$ kubectl edit deploy wordpress
-
-# port forward to check if wordpress is running correctly
-$ WPOD=$(kubectl get -n wordpress pod -l app=wordpress -o jsonpath="{.items[0].metadata.name}")
-
-$ kubectl port-forward pod/$WPOD 8090:80 -n wordpress
+$ minikube service wordpress-service --url
+http://192.168.99.100:31001
 ```
 
-Scale in/out Deployments
+#### 192.168.99.100:31001
 
+<img width=500 src="https://user-images.githubusercontent.com/44635266/65610597-8baa9900-dfec-11e9-9e9f-124db8c6aaab.png">
+
+#### Registry
+
+<img width=500 src="https://user-images.githubusercontent.com/44635266/65610598-8c432f80-dfec-11e9-8f9b-0048d6e0fa80.png">
+
+#### Login
+
+<img width=500 src="https://user-images.githubusercontent.com/44635266/65610595-8b120280-dfec-11e9-8937-a5da4215769f.png">
+
+#### My Blog
+
+<img width=500 src="https://user-images.githubusercontent.com/44635266/65610596-8baa9900-dfec-11e9-8727-716bd0192ef5.png">
+
+
+## Web UI in kops
+
+
+# Setting up the dashboard
+
+## Start dashboard
+
+Create dashboard:
 ```
-$ kubectl scale deploy wordpress --replicas=3 -n wordpress
-$ kubectl scale deploy wordpress --replicas=1 -n wordpress
-
-# check services for wordpress
-$ kubectl get svc -n wordpress
-
-# check ingress
-$ kubectl get ingress -n wordpress
-
-# other commands
-$ k explain deployment --recursive
-$ k explain svc --recursive
-$ k get pods -o wide --sort-by="{.spec.nodeName}"
-```
-
-### Expose Ingress
-Intall socat to expose nodeport on local 80 port
-
-```
-$ docker run -d --name kind-proxy-80 \
---publish 80:80 \
---link kind-m-control-plane:target \
-alpine/socat \
-tcp-listen:80,fork,reuseaddr tcp-connect:target:32080
-```
-
-### Test
-
-Test with your own DNS
-
-```
-$ chrome http://blog.$IP.nip.io
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 ```
 
-### Delete resources and cluster
+## Create user
+
+Create sample user 
 
 ```
-$ kubectl --namespace=wordpress delete --all
-$ kubectl delete --namespace wordpress
-
-$ kind delete cluster --name kind-m
-
-# remove socat
-$ docker rm -f kind-proxy-80
+$ kubectl create -f sample-user.yaml
 ```
 
+## Get login token:
+```
+$ kubectl -n kube-system get secret | grep admin-user
+
+admin-user-token-mptfz                           kubernetes.io/service-account-token   3      14s
+
+$ kubectl -n kube-system describe secret admin-user-token-<id displayed by previous command>
+
+
+Name:         admin-user-token-mptfz
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: admin-user
+              kubernetes.io/service-account.uid: 95294dd8-6830-4c95-900d-00a3814787d1
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1066 bytes
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLW1wdGZ6Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI5NTI5NGRkOC02ODMwLTRjOTUtOTAwZC0wMGEzODE0Nzg3ZDEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.VQkMllsEZXuyvpGIk_Pq6-86tkDuWbB3oaP09mIjqbP-WYllxvc2bd9lcdfufD8wUioZy6qOprNN9wM9Y3zoONEhfguGe9qWXblfpf1LqjIDdVZcbOQt0b1D-fm_Ok136LYM9KwXxAeVtsOJxMvJwcpSf1LMhkLZVJROmPDgsNEX9vc61xr9kSH_Ejhp8siUTnDcNgx_2-394kMs7d76pl8PX5KRx_mUvQ_IvGTP4KE51Si6bxd7-3mcnRj5I2h_b1Z9_0wtTkvxN29PqQEuAiOa3Y6_nJ6UXBxspEDYogiw4eS3M1xTBb1rqSGtMXuWzrrb86izDjcCqFY7Rr56RQ
+```
+
+## Login to dashboard
+```
+$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /Users/has3ong/.minikube/ca.crt
+    server: https://192.168.99.100:8443
+  name: minikube
+contexts:
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: minikube
+  user:
+    client-certificate: /Users/has3ong/.minikube/client.crt
+    client-key: /Users/has3ong/.minikube/client.key
+
+$ minikube dashboard --url
+🤔  Verifying dashboard health ...
+🚀  Launching proxy ...
+🤔  Verifying proxy health ...
+http://127.0.0.1:53368/api/v1/namespaces/kube-system/services/http:kubernetes-dashboard:/proxy/
+```
+
+Login: admin
+Password: the password that is listed in ~/.kube/config (open file in editor and look for "password: ..."
+
+Choose for login token and enter the login token from the previous step
+
+### Dashboard
+
+<img width="500" src="https://user-images.githubusercontent.com/44635266/65613211-9404d300-dff0-11e9-8d45-002e528cb228.png">
